@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a0404" />
+      <stop offset="100%" stop-color="#050505" />
+    </radialGradient>
+    <radialGradient id="irisRed" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff3b3b" />
+      <stop offset="45%" stop-color="#dc2626" />
+      <stop offset="85%" stop-color="#7f1d1d" />
+      <stop offset="100%" stop-color="#2a0606" />
+    </radialGradient>
+    <linearGradient id="metalRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4af37" stop-opacity="0.7" />
+      <stop offset="50%" stop-color="#5a4522" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#1f180c" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bgGlow)" stroke="#3f0f0f" stroke-width="4"/>
+  <!-- Occult Triangle Frame -->
+  <polygon points="256,76 432,382 80,382" stroke="url(#metalRim)" stroke-width="8" fill="none" opacity="0.85"/>
+  <circle cx="256" cy="275" r="95" stroke="#991b1b" stroke-width="4" fill="#0d0303" opacity="0.9"/>
+  <!-- Mystic Eye Outlines -->
+  <path d="M140 275 C190 200, 322 200, 372 275 C322 350, 190 350, 140 275 Z" fill="#090202" stroke="#e4e4e7" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Crimson Iris -->
+  <circle cx="256" cy="275" r="46" fill="url(#irisRed)"/>
+  <!-- Deep Pupil -->
+  <circle cx="256" cy="275" r="22" fill="#050505" stroke="#1c0404" stroke-width="2"/>
+  <circle cx="247" cy="266" r="6" fill="#ffffff" opacity="0.7"/>
+</svg>

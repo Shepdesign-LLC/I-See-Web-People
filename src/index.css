@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #050505;
+    color: #e5e5e5;
+    overflow-x: hidden;
+  }
+  .font-cinema {
+    font-family: 'Cinzel', Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+  .font-editorial {
+    font-family: 'Crimson Pro', Georgia, serif;
+  }
+  .font-typewriter {
+    font-family: 'Special Elite', monospace;
+  }
+  code, pre, kbd, samp {
+    font-family: 'Space Mono', ui-monospace, monospace;
+  }
+}
+
+/* Radar Sweep Keyframe */
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-sweep {
+  animation: radar-sweep 6s linear infinite;
+}
+
+/* Grungy Film Grain & Subtle Red Vignette */
+.bg-vignette {
+  background: radial-gradient(circle at 50% 20%, rgba(153, 27, 27, 0.08) 0%, rgba(5, 5, 5, 0.95) 70%, #050505 100%);
+}
+
+.bg-grunge-dark {
+  background-color: #080808;
+  background-image: radial-gradient(rgba(220, 38, 38, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Red & Black Sleek Card */
+.dark-card {
+  background: #0c0c0c;
+  border: 1px solid #1a1a1a;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+}
+
+.dark-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dark-card-hover:hover {
+  border-color: rgba(220, 38, 38, 0.4);
+  background: #110c0c;
+  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.12);
+}
+
+/* Grungy Red Wax Seal */
+.red-seal {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ef4444 0%, #b91c1c 50%, #450a0a 100%);
+  border: 1px solid #f87171;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* Mysterious Crimson Flashlight Lens */
+.flashlight-active {
+  position: relative;
+}
+
+.flashlight-beam {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(
+    circle 240px at var(--lantern-x, 50vw) var(--lantern-y, 50vh),
+    rgba(220, 38, 38, 0.2) 0%,
+    rgba(153, 27, 27, 0.12) 35%,
+    rgba(5, 5, 5, 0.8) 75%,
+    rgba(5, 5, 5, 0.96) 100%
+  );
+  transition: opacity 0.2s ease;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #dc2626;
+}

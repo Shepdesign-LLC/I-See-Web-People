@@ -1,0 +1,8 @@
+{
+  "name": "I See Web People",
+  "description": "A dark, mysterious Sixth Sense PWA by shepdesign. We see the visitors you lose in the dark.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
