@@ -1,0 +1,140 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitives
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'ryan@shepdesign.com' &&
+        request.auth.token.email_verified == true
+      );
+    }
+
+    // Connectivity Test Document (mandated by skill connection verification)
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // --- Entity Validation: SeanceEntry ---
+    function isValidSeanceEntry(data) {
+      return data.keys().hasAll(['spiritNumber', 'title', 'clientAlias', 'status', 'authorId']) &&
+             data.keys().hasOnly(['spiritNumber', 'title', 'clientAlias', 'visitorLossPattern', 'lostInTheDarkReason', 'recoveryMethod', 'status', 'coordX', 'coordY', 'spectralIntensity', 'notes', 'authorId', 'createdAt']) &&
+             data.spiritNumber is string && data.spiritNumber.size() <= 32 && data.spiritNumber.matches('^[a-zA-Z0-9_\\-]+$') &&
+             data.title is string && data.title.size() <= 140 && data.title.size() > 0 &&
+             data.clientAlias is string && data.clientAlias.size() <= 100 &&
+             data.status in ['recovered', 'in_dialogue', 'dissolved'] &&
+             data.authorId is string && data.authorId == request.auth.uid &&
+             (!('visitorLossPattern' in data) || (data.visitorLossPattern is string && data.visitorLossPattern.size() <= 300)) &&
+             (!('lostInTheDarkReason' in data) || (data.lostInTheDarkReason is string && data.lostInTheDarkReason.size() <= 300)) &&
+             (!('recoveryMethod' in data) || (data.recoveryMethod is string && data.recoveryMethod.size() <= 300)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+             (!('coordX' in data) || data.coordX is number) &&
+             (!('coordY' in data) || data.coordY is number) &&
+             (!('spectralIntensity' in data) || data.spectralIntensity is number);
+    }
+
+    // Seance Entries Collection
+    match /seance_entries/{entryId} {
+      allow get, list: if true;
+
+      allow create: if isValidId(entryId) &&
+                       isSignedIn() &&
+                       isValidSeanceEntry(incoming());
+
+      allow update: if isValidId(entryId) &&
+                       isSignedIn() &&
+                       isValidSeanceEntry(incoming()) &&
+                       incoming().authorId == existing().authorId &&
+                       incoming().spiritNumber == existing().spiritNumber &&
+                       (isAdmin() || existing().authorId == request.auth.uid) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['title', 'visitorLossPattern', 'lostInTheDarkReason', 'recoveryMethod', 'status', 'coordX', 'coordY', 'spectralIntensity', 'notes']);
+
+      allow delete: if isValidId(entryId) &&
+                       isSignedIn() &&
+                       (isAdmin() || existing().authorId == request.auth.uid);
+    }
+
+    // --- Entity Validation: Inquiry ---
+    function isValidInquiry(data) {
+      return data.keys().hasAll(['name', 'email', 'notes', 'status']) &&
+             data.keys().hasOnly(['name', 'email', 'serviceType', 'notes', 'status', 'senderId', 'createdAt']) &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.notes is string && data.notes.size() <= 2000 &&
+             data.status in ['summoned', 'reviewed', 'archived'] &&
+             (!('serviceType' in data) || (data.serviceType is string && data.serviceType.size() <= 100)) &&
+             (!('senderId' in data) || (data.senderId is string && data.senderId.size() <= 128));
+    }
+
+    // Inquiries Collection (Summon shepdesign)
+    match /inquiries/{inquiryId} {
+      allow create: if isValidId(inquiryId) &&
+                       isValidInquiry(incoming()) &&
+                       incoming().status == 'summoned' &&
+                       (!isSignedIn() || !('senderId' in incoming()) || incoming().senderId == request.auth.uid);
+
+      // PII Protection: Only the sender or Admin can read inquiries
+      allow get: if isValidId(inquiryId) &&
+                    (isAdmin() || (isSignedIn() && existing().senderId == request.auth.uid));
+
+      allow list: if isAdmin() || (isSignedIn() && resource.data.senderId == request.auth.uid);
+
+      allow update: if isValidId(inquiryId) &&
+                       isAdmin() &&
+                       isValidInquiry(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['status', 'notes']);
+
+      allow delete: if isValidId(inquiryId) && isAdmin();
+    }
+
+    // --- Entity Validation: UserProfile ---
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['displayName', 'email', 'role']) &&
+             data.keys().hasOnly(['displayName', 'email', 'photoURL', 'role', 'createdAt']) &&
+             data.displayName is string && data.displayName.size() <= 100 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.role in ['visitor', 'keeper'] &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 500));
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isAdmin() || (isSignedIn() && request.auth.uid == userId));
+
+      allow create: if isValidId(userId) &&
+                       isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isValidId(userId) &&
+                       isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL']);
+
+      allow delete: if false;
+    }
+  }
+}

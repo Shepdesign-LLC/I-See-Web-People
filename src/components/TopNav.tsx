@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Flashlight, Volume2, VolumeX, BookOpen, Layers, Briefcase, Mail, Sliders } from 'lucide-react';
+import { Flashlight, Volume2, VolumeX, BookOpen, Layers, Briefcase, Mail, Sliders, User as UserIcon, LogOut, ShieldCheck } from 'lucide-react';
+import { User } from 'firebase/auth';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface TopNavProps {
@@ -11,6 +12,10 @@ interface TopNavProps {
   onToggleSoundscape: () => void;
   soundscapeVolume?: number;
   onSoundscapeVolumeChange?: (vol: number) => void;
+  user?: User | null;
+  onSignIn?: () => void;
+  onSignOut?: () => void;
+  isAdmin?: boolean;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -21,9 +26,14 @@ export const TopNav: React.FC<TopNavProps> = ({
   isSoundscapeActive,
   onToggleSoundscape,
   soundscapeVolume = 0.45,
-  onSoundscapeVolumeChange
+  onSoundscapeVolumeChange,
+  user,
+  onSignIn,
+  onSignOut,
+  isAdmin
 }) => {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 bg-[#070707]/90 backdrop-blur-xl border-b border-zinc-900">
@@ -95,7 +105,7 @@ export const TopNav: React.FC<TopNavProps> = ({
           </button>
         </nav>
 
-        {/* Action Controls: Soundscape, Flashlight & PWA Install */}
+        {/* Action Controls: Auth, Soundscape, Flashlight & PWA Install */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           {/* Ghostly Soundscape Ambient Toggle */}
           <div className="relative">
@@ -112,7 +122,6 @@ export const TopNav: React.FC<TopNavProps> = ({
               {isSoundscapeActive ? (
                 <>
                   <Volume2 className="w-3.5 h-3.5 text-red-400 animate-pulse" />
-                  {/* Subtle pulsing soundwave equalizer bars */}
                   <span className="flex items-end gap-0.5 h-3 px-0.5" aria-hidden="true">
                     <span className="w-0.5 bg-red-400 rounded-full animate-[pulse_1.2s_ease-in-out_infinite] h-2" />
                     <span className="w-0.5 bg-red-300 rounded-full animate-[pulse_0.8s_ease-in-out_infinite_0.2s] h-3" />
@@ -128,7 +137,6 @@ export const TopNav: React.FC<TopNavProps> = ({
               )}
             </button>
 
-            {/* Quick volume slider trigger when active */}
             {isSoundscapeActive && onSoundscapeVolumeChange && (
               <button
                 onClick={(e) => {
@@ -142,7 +150,6 @@ export const TopNav: React.FC<TopNavProps> = ({
               </button>
             )}
 
-            {/* Volume dropdown menu */}
             {showVolumeSlider && isSoundscapeActive && onSoundscapeVolumeChange && (
               <div className="absolute right-0 top-full mt-2 w-48 p-3 rounded-xl bg-[#0c0c0c] border border-red-900/60 shadow-2xl z-50">
                 <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 mb-1.5">
@@ -178,6 +185,60 @@ export const TopNav: React.FC<TopNavProps> = ({
             <Flashlight className={`w-3.5 h-3.5 ${isFlashlightActive ? 'text-red-400 animate-pulse' : 'text-zinc-500'}`} />
             <span className="hidden sm:inline">{isFlashlightActive ? 'Beam Active' : 'Lens'}</span>
           </button>
+
+          {/* Firebase Authentication: Spirit Keeper Sign In */}
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(prev => !prev)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono border bg-red-950/40 border-red-900/70 text-red-200 hover:border-red-600 transition-all cursor-pointer"
+                title={`Spirit Keeper: ${user.displayName || user.email}`}
+              >
+                {user.photoURL ? (
+                  <img src={user.photoURL} alt="Keeper" className="w-4 h-4 rounded-full border border-red-500" />
+                ) : (
+                  <ShieldCheck className="w-3.5 h-3.5 text-red-400" />
+                )}
+                <span className="hidden sm:inline max-w-[90px] truncate">
+                  {user.displayName?.split(' ')[0] || 'Keeper'}
+                </span>
+                {isAdmin && (
+                  <span className="px-1 py-0.2 rounded text-[9px] bg-red-900/80 text-red-200 uppercase font-bold">Admin</span>
+                )}
+              </button>
+
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-52 p-3 rounded-xl bg-[#0e0e0e] border border-red-900/70 shadow-2xl z-50 space-y-2">
+                  <div className="border-b border-zinc-900 pb-2">
+                    <p className="text-xs font-semibold text-white truncate">{user.displayName || 'Spirit Keeper'}</p>
+                    <p className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</p>
+                    {isAdmin && (
+                      <p className="text-[10px] text-red-400 font-mono mt-1 font-semibold">Chief Keeper (shepdesign)</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onSignOut?.();
+                    }}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-zinc-300 hover:text-red-300 hover:bg-red-950/40 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5 text-red-400" />
+                    <span>Relinquish Seal (Sign Out)</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={onSignIn}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium border bg-zinc-950/70 text-zinc-300 border-zinc-800 hover:border-red-900/80 hover:text-white transition-all cursor-pointer font-mono"
+              title="Sign in with Google to enter Spirit Keeper mode"
+            >
+              <UserIcon className="w-3.5 h-3.5 text-red-500" />
+              <span className="hidden sm:inline">Keeper Sign In</span>
+            </button>
+          )}
 
           <PWAInstallButton />
         </div>

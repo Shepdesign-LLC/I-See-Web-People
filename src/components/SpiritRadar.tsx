@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Compass, Eye, Ghost, Sparkles, Filter, Play, Pause, RotateCw, Radio, MapPin, ArrowRight, ShieldCheck, Clock } from 'lucide-react';
-import { SeanceSpiritEntry, INITIAL_SPIRITS } from './SeanceLogDiary';
+import { SeanceSpiritEntry, INITIAL_SPIRITS } from '../data/spirits';
 
 interface SpiritPathNode {
   x: number; // percentage 0-100

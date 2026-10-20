@@ -1,0 +1,181 @@
+{
+  "entities": {
+    "SeanceEntry": {
+      "title": "Seance Entry",
+      "description": "A field ledger spirit entry representing a recovered lost web visitor or case inquiry.",
+      "type": "object",
+      "properties": {
+        "spiritNumber": {
+          "type": "string",
+          "description": "Identifier formatted like SP-9482",
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title or subject of the lost visitor inquiry",
+          "maxLength": 140
+        },
+        "clientAlias": {
+          "type": "string",
+          "description": "Company or client alias",
+          "maxLength": 100
+        },
+        "visitorLossPattern": {
+          "type": "string",
+          "description": "Description of why the visitor was lost in the dark",
+          "maxLength": 300
+        },
+        "lostInTheDarkReason": {
+          "type": "string",
+          "description": "Underlying UX or web friction cause",
+          "maxLength": 300
+        },
+        "recoveryMethod": {
+          "type": "string",
+          "description": "PWA or architectural intervention that recovered the visitor",
+          "maxLength": 300
+        },
+        "status": {
+          "type": "string",
+          "description": "Current spirit investigation status",
+          "enum": ["recovered", "in_dialogue", "dissolved"]
+        },
+        "coordX": {
+          "type": "number",
+          "description": "Normalized spirit radar X coordinate (0 to 100)"
+        },
+        "coordY": {
+          "type": "number",
+          "description": "Normalized spirit radar Y coordinate (0 to 100)"
+        },
+        "spectralIntensity": {
+          "type": "number",
+          "description": "Relative signal strength 0.0 to 1.0"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Field notes handwritten by the spirit keeper",
+          "maxLength": 1000
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the creator/keeper",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of record creation"
+        }
+      },
+      "required": [
+        "spiritNumber",
+        "title",
+        "clientAlias",
+        "status",
+        "authorId"
+      ]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "Private contact inquiry summoned to shepdesign.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Contact sender name",
+          "maxLength": 100,
+          "minLength": 2
+        },
+        "email": {
+          "type": "string",
+          "description": "Contact sender email",
+          "maxLength": 150
+        },
+        "serviceType": {
+          "type": "string",
+          "description": "Requested craftsmanship or intervention",
+          "maxLength": 100
+        },
+        "notes": {
+          "type": "string",
+          "description": "Detailed description of the lost visitors problem",
+          "maxLength": 2000
+        },
+        "status": {
+          "type": "string",
+          "description": "Current state of the inquiry",
+          "enum": ["summoned", "reviewed", "archived"]
+        },
+        "senderId": {
+          "type": "string",
+          "description": "UID of the authenticated sender or anonymous session identifier",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when inquiry was summoned"
+        }
+      },
+      "required": [
+        "name",
+        "email",
+        "notes",
+        "status"
+      ]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Authenticated Spirit Keeper profile.",
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address",
+          "maxLength": 150
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Avatar URL",
+          "maxLength": 500
+        },
+        "role": {
+          "type": "string",
+          "description": "Keeper role",
+          "enum": ["visitor", "keeper", "admin"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time user first joined"
+        }
+      },
+      "required": [
+        "displayName",
+        "email",
+        "role"
+      ]
+    }
+  },
+  "firestore": {
+    "/seance_entries/{entryId}": {
+      "schema": "SeanceEntry",
+      "description": "Ledger collection of past spirits, field inquiries, and radar contacts"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Summoned inquiries submitted to shepdesign"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Registered spirit keeper profiles"
+    }
+  }
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Eye, Flashlight, BookOpen, ArrowRight, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { useGhostlySoundscape } from './hooks/useGhostlySoundscape';
+import { useFirebaseAuth } from './hooks/useFirebaseAuth';
 import { TopNav } from './components/TopNav';
 import { FlashlightOverlay } from './components/FlashlightOverlay';
 import { OfflineIndicator } from './components/OfflineIndicator';
@@ -13,6 +14,7 @@ import { ContactSection } from './components/ContactSection';
 export default function App() {
   const { isOnline, simulatedOffline, toggleSimulatedOffline } = useOnlineStatus();
   const { isPlaying: isSoundscapeActive, volume: soundscapeVolume, toggleSoundscape, setVolume: setSoundscapeVolume } = useGhostlySoundscape();
+  const { user, isAdmin, signIn, signOut } = useFirebaseAuth();
   const [activeSection, setActiveSection] = useState<'services' | 'cases' | 'diary' | 'contact'>('services');
   const [isFlashlightActive, setIsFlashlightActive] = useState(false);
 
@@ -45,7 +47,7 @@ export default function App() {
         onClose={() => setIsFlashlightActive(false)}
       />
 
-      {/* Top Bar Header */}
+      {/* Top Bar Header with Soundscape, Flashlight & Firebase Auth */}
       <TopNav
         activeSection={activeSection}
         onSelectSection={handleNavSelect}
@@ -55,6 +57,10 @@ export default function App() {
         onToggleSoundscape={toggleSoundscape}
         soundscapeVolume={soundscapeVolume}
         onSoundscapeVolumeChange={setSoundscapeVolume}
+        user={user}
+        onSignIn={signIn}
+        onSignOut={signOut}
+        isAdmin={isAdmin}
       />
 
       {/* Main Content Area (PWA Optimized) */}
@@ -216,7 +222,7 @@ export default function App() {
                 I See Web People
               </p>
               <p className="text-xs text-zinc-400 font-mono">
-                Crafted by shepdesign &middot; Progressive Web App
+                Crafted by shepdesign &middot; Progressive Web App &middot; Cloud Database
               </p>
             </div>
           </div>
